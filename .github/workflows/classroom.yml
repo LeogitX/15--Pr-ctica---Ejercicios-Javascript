@@ -1,0 +1,118 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    # Cachear node_modules
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    
+    # Instalar dependencias una sola vez
+    - name: Install dependencies
+      run: npm install
+    
+    # Test 1: Variables y Tipos (16 puntos)
+    - name: Test 1 - Variables y Tipos
+      id: test-1-variables-tipos
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test 1 - Variables y Tipos
+        setup-command: ''
+        command: npm test -- tests/ejercicio/1-variables-tipos.test.js
+        timeout: 10
+        max-score: 16
+      continue-on-error: true
+    
+    # Test 2: Operadores (17 puntos)
+    - name: Test 2 - Operadores
+      id: test-2-operadores
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test 2 - Operadores
+        setup-command: ''
+        command: npm test -- tests/ejercicio/2-operadores.test.js
+        timeout: 10
+        max-score: 17
+      continue-on-error: true
+    
+    # Test 3: Condicionales (17 puntos)
+    - name: Test 3 - Condicionales
+      id: test-3-condicionales
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test 3 - Condicionales
+        setup-command: ''
+        command: npm test -- tests/ejercicio/3-condicionales.test.js
+        timeout: 10
+        max-score: 17
+      continue-on-error: true
+    
+    # Test 4: Bucles (17 puntos)
+    - name: Test 4 - Bucles
+      id: test-4-bucles
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test 4 - Bucles
+        setup-command: ''
+        command: npm test -- tests/ejercicio/4-bucles.test.js
+        timeout: 10
+        max-score: 17
+      continue-on-error: true
+    
+    # Test 5: Funciones (17 puntos)
+    - name: Test 5 - Funciones
+      id: test-5-funciones
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test 5 - Funciones
+        setup-command: ''
+        command: npm test -- tests/ejercicio/5-funciones.test.js
+        timeout: 10
+        max-score: 17
+      continue-on-error: true
+    
+    # Test 6: Funciones Avanzadas (16 puntos)
+    - name: Test 6 - Funciones Avanzadas
+      id: test-6-funciones-avanzadas
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test 6 - Funciones Avanzadas
+        setup-command: ''
+        command: npm test -- tests/ejercicio/6-funciones-avanzadas.test.js
+        timeout: 10
+        max-score: 16
+      continue-on-error: true
+    
+    # Reporter con todos los tests
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-1-VARIABLES-TIPOS_RESULTS: "${{steps.test-1-variables-tipos.outputs.result}}"
+        TEST-2-OPERADORES_RESULTS: "${{steps.test-2-operadores.outputs.result}}"
+        TEST-3-CONDICIONALES_RESULTS: "${{steps.test-3-condicionales.outputs.result}}"
+        TEST-4-BUCLES_RESULTS: "${{steps.test-4-bucles.outputs.result}}"
+        TEST-5-FUNCIONES_RESULTS: "${{steps.test-5-funciones.outputs.result}}"
+        TEST-6-FUNCIONES-AVANZADAS_RESULTS: "${{steps.test-6-funciones-avanzadas.outputs.result}}"
+      with:
+        runners: test-1-variables-tipos,test-2-operadores,test-3-condicionales,test-4-bucles,test-5-funciones,test-6-funciones-avanzadas
